@@ -21,7 +21,6 @@ const TaskList: React.FC = () => {
     const [showAllTags, setShowAllTags] = useState(false); // New state to toggle displaying all tags
   
     const [existingTags, setExistingTags] = useState<string[]>([]); // New state to store existing tags
-    const [dragging, setDragging] = useState(null); // State to store the dragging task
 
     const fetchData = async () => {
       try {
@@ -37,6 +36,10 @@ const TaskList: React.FC = () => {
   
     useEffect(() => {
       fetchData();
+      // Lấy danh sách tất cả các tags đã tồn tại
+      const tags = tasks.flatMap((task) => task.tags);
+      const uniqueTags = Array.from(new Set(tags));
+      setExistingTags(uniqueTags);
     }, []);
   
     // Thêm công việc
@@ -314,6 +317,18 @@ const handleToggleTaskStatus = async (taskId: number, active: boolean) => {
           onChange={(e) => setNewTaskName(e.target.value)}
           className="w-full p-2 border rounded mb-2"
         />
+        <select
+          value={''}
+          onChange={(e) => setNewTaskTags([...newTaskTags, e.target.value])}
+          className="w-full p-2 border rounded mb-2"
+        >
+          <option value="" disabled>Select a tag</option>
+          {existingTags.map((tag) => (
+            <option key={tag} value={tag}>
+              {tag}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           placeholder="Add tags (comma-separated)"
