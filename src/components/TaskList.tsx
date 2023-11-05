@@ -20,6 +20,9 @@ const TaskList: React.FC = () => {
 
     const [showAllTags, setShowAllTags] = useState(false); // New state to toggle displaying all tags
   
+    const [existingTags, setExistingTags] = useState<string[]>([]); // New state to store existing tags
+    const [dragging, setDragging] = useState(null); // State to store the dragging task
+
     const fetchData = async () => {
       try {
         const response = await fetch('http://localhost:3010/tasks');
@@ -234,6 +237,7 @@ const handleToggleTaskStatus = async (taskId: number, active: boolean) => {
 
   const uniqueTags = Array.from(new Set(tasks.flatMap((task) => task.tags)));
 
+  
   return (
     <div className="max-w-lg mx-auto p-4">
       <h3 className="text-2xl font-semibold mb-4">Tasks</h3>
