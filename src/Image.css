@@ -1,0 +1,20 @@
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 20px;
+}
+
+.image-item {
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-item img {
+    width: 200px; /* Set the width of your images */
+    height: 150px; /* Set the height of your images */
+    object-fit: cover; /* Maintain aspect ratio while covering the area */
+}
