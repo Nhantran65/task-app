@@ -15,6 +15,10 @@ const TaskList: React.FC = () => {
   
     // Trạng thái lọc hiện tại (tất cả, active, unactive)
     const [filteredStatus, setFilteredStatus] = useState<string>('all');
+
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+
+    const [showAllTags, setShowAllTags] = useState(false); // New state to toggle displaying all tags
   
     const fetchData = async () => {
       try {
@@ -219,12 +223,21 @@ const handleToggleTaskStatus = async (taskId: number, active: boolean) => {
   };
   
 
+  // Function to toggle selected tags
+  const handleToggleTag = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      setSelectedTags(selectedTags.filter((selectedTag) => selectedTag !== tag));
+    } else {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  const uniqueTags = Array.from(new Set(tasks.flatMap((task) => task.tags)));
+
   return (
     <div className="max-w-lg mx-auto p-4">
       <h3 className="text-2xl font-semibold mb-4">Tasks</h3>
 
-
-      {/* Nút chọn trạng thái lọc */}
       <div className="mb-4">
         <button
           onClick={() => setFilteredStatus('all')}
@@ -246,45 +259,96 @@ const handleToggleTaskStatus = async (taskId: number, active: boolean) => {
         </button>
       </div>
 
-      <div className='mb-4'>
-    <input
-      type="text"
-      placeholder="Task name"
-      value={newTaskName}
-      onChange={(e) => setNewTaskName(e.target.value)}
-      className="w-full p-2 border rounded mb-2"
-    />
-    <input
-      type="text"
-      placeholder="Add tags (comma-separated)"
-      value={newTaskTags.join(', ')}
-      onChange={(e) => setNewTaskTags(e.target.value.split(', '))}
-      className="w-full p-2 border rounded mb-2"
-    />
-    <button
-      onClick={handleAddTask}
-      className="bg-green-500 text-white p-2 rounded"
-    >
-      Add Task
-    </button>
-    <button onClick={handleReloadData} className="bg-blue-500 text-white p-2 rounded m-2">
-    Reload Data
-    </button>
+      <div className="mb-4">
+        {showAllTags
+          ? uniqueTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => handleToggleTag(tag)}
+                className={`mr-2 ${
+                  selectedTags.includes(tag) ? 'bg-blue-500' : 'bg-gray-300'
+                } text-white p-2 rounded`}
+              >
+                {tag}
+              </button>
+            ))
+            : uniqueTags.slice(0, 5).map((tag) => (
+              <button
+                key={tag}
+                onClick={() => handleToggleTag(tag)}
+                className={`mr-2 ${
+                  selectedTags.includes(tag) ? 'bg-blue-500' : 'bg-gray-300'
+                } text-white p-2 rounded`}
+              >
+                {tag}
+              </button>
+            ))}
+        {uniqueTags.length > 5 && (
+          <button
+            onClick={() => setShowAllTags(!showAllTags)}
+            className={`mr-2 bg-blue-500 text-white p-2 rounded`}
+          >
+            {showAllTags ? 'Show Less' : 'Show More'}
+          </button>
+        )
+        }
+        <button
+          onClick={() => setSelectedTags([])}
+          className={`mr-2 ${
+            selectedTags.length === 0 ? 'bg-blue-500' : 'bg-gray-300'
+          } text-white p-2 rounded`}
+        >
+          Clear Tags
+        </button>
+      </div>
 
-  </div>  
-      
+      <div className='mb-4'>
+        <input
+          type="text"
+          placeholder="Task name"
+          value={newTaskName}
+          onChange={(e) => setNewTaskName(e.target.value)}
+          className="w-full p-2 border rounded mb-2"
+        />
+        <input
+          type="text"
+          placeholder="Add tags (comma-separated)"
+          value={newTaskTags.join(', ')}
+          onChange={(e) => setNewTaskTags(e.target.value.split(', '))}
+          className="w-full p-2 border rounded mb-2"
+        />
+        <button
+          onClick={handleAddTask}
+          className="bg-green-500 text-white p-2 rounded"
+        >
+          Add Task
+        </button>
+        <button
+          onClick={handleReloadData}
+          className="bg-blue-500 text-white p-2 rounded m-2"
+        >
+          Reload Data
+        </button>
+      </div>
+
       <ul>
-  {tasks
-      .filter((task) => {
-          if (filteredStatus === 'active') {
-            return task.active;
-          } else if (filteredStatus === 'unactive') {
-            return !task.active;
-          }
-          return true; // Hiển thị tất cả trạng thái
-      })
-      
-      .map((task) => (
+        {tasks
+          .filter((task) => {
+            if (filteredStatus === 'active') {
+              return task.active;
+            } else if (filteredStatus === 'unactive') {
+              return !task.active;
+            }
+            return true;
+          })
+          .filter((task) => {
+            if (selectedTags.length === 0) {
+              return true;
+            } else {
+              return task.tags.some((tag) => selectedTags.includes(tag));
+            }
+          })
+          .map((task) => (
       <li key={task.id} className="mb-4 p-2 border rounded">
           {task === editingTask ? (
           <div>
