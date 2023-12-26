@@ -1,19 +1,19 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import About from './components/About'; // Import your About component
+import Info from './components/Info'; // Import your About component
 import Navbar from './layout/NavBar'; // Import your Navbar component
-import TaskList from './components/TaskList';
-import TaskTable from './components/TaskTable';
-import Image from './components/Image';
+import Game from './components/Game';
+import Option from './components/Option';
+import Edit from './components/Edit';
 function App() {
   return (
     <Router>
     <Navbar />
     <Routes>
-      <Route path="/" element={<TaskList />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/table" element={<TaskTable />} />
-      <Route path="/image" element={<Image />} />
+      <Route path="/" element={<Game />} />
+      <Route path="/info" element={<Info />} />
+      <Route path="/option" element={<Option />} />
+      <Route path="/edit" element={<Edit />} />
       {/* Add more routes for other pages as needed */}
     </Routes>
   </Router>

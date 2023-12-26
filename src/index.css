@@ -3,3 +3,11 @@
 @import 'tailwindcss/utilities';
 
 
+/* styles.css */
+@media (max-width: 500px) {
+    /* Add CSS rules for screens with a width of 500px or less */
+  }
+  @media (min-width: 768px) {
+    /* Add CSS rules for screens with a width of 768px or more */
+  }
+  
