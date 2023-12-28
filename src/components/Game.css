@@ -16,6 +16,46 @@
   }
   
   .empty-cell {
-    background-color: #ddd; /* Gray color for empty cells */
+    background-color: #4e421040; /* Gray color for empty cells */
+  }
+  /* Add these styles to your existing CSS file */
+
+/* Add these styles to your existing CSS file */
+
+.game-container {
+    display: flex;
   }
   
+  .sidebar {
+    width: 200px;
+    padding: 16px;
+    background-color: #3498db; /* Sidebar background color */
+    color: #fff; /* Text color */
+    border-right: 1px solid #2980b9; /* Border color */
+  }
+  
+  .sidebar h4 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  
+  .sidebar select {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #2980b9; /* Border color for the select */
+    border-radius: 4px;
+    background-color: #fff; /* Select background color */
+    color: #333; /* Select text color */
+  }
+  
+  .sidebar select:hover {
+    background-color: #ecf0f1; /* Hover background color for the select */
+  }
+  
+  /* Hover effect for sidebar links */
+  .sidebar a:hover {
+    color: #ecf0f1; /* Hover text color */
+  }
+  
+  /* Adjust other styles as needed */

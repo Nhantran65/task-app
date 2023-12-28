@@ -1,49 +1,80 @@
 import React, { useState, useEffect } from 'react';
-import './Game.css'; // Import your CSS file
+import './Game.css';
 
 const GRID_SIZE = 20;
-const CELL_SIZE = 20;
+
+interface SnakeSegment {
+  x: number;
+  y: number;
+}
+
+interface Obstacle {
+  x: number;
+  y: number;
+}
 
 const Game: React.FC = () => {
-  const [snake, setSnake] = useState([{ x: 0, y: 0 }]); // Initial position of the snake
-  const [direction, setDirection] = useState('RIGHT'); // Initial direction of the snake
+  const [snake, setSnake] = useState<SnakeSegment[]>([{ x: 0, y: 0 }]);
+  const [direction, setDirection] = useState('RIGHT');
+  const [obstacles, setObstacles] = useState<Obstacle[]>([]);
+  const [level, setLevel] = useState(1);
+  const [isPaused, setIsPaused] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState(1);
+
+  const CELL_SIZE = 20;
+  const obstacleColor = 'red';
+  const obstacleTypes = [
+    { level: 1, density: 0 },
+    { level: 2, density: 2 },
+    { level: 3, density: 5 },
+    // Add more levels and densities as needed
+  ];
 
   const moveSnake = () => {
-    const newSnake = [...snake];
-    const head = { ...newSnake[0] };
+    if (!isPaused) {
+      const newSnake = [...snake];
+      const head = { ...newSnake[0] };
 
-    // Update the position of the head based on the current direction
-    switch (direction) {
-      case 'UP':
-        head.y -= 1;
-        break;
-      case 'DOWN':
-        head.y += 1;
-        break;
-      case 'LEFT':
-        head.x -= 1;
-        break;
-      case 'RIGHT':
-        head.x += 1;
-        break;
-      default:
-        break;
-    }
+      switch (direction) {
+        case 'UP':
+          head.y -= 1;
+          break;
+        case 'DOWN':
+          head.y += 1;
+          break;
+        case 'LEFT':
+          head.x -= 1;
+          break;
+        case 'RIGHT':
+          head.x += 1;
+          break;
+        default:
+          break;
+      }
 
-    // Add a new segment to the snake at the new head position
-    newSnake.unshift(head);
+      newSnake.unshift(head);
 
-    // Check if the snake has reached the target length
-    if (newSnake.length > 5) {
-      // Remove the last segment of the snake to maintain its length
+      const collisionWithObstacle = obstacles.some(
+        (obstacle) => obstacle.x === head.x && obstacle.y === head.y
+      );
+
+      if (collisionWithObstacle) {
+        resetGame();
+        return;
+      }
+
+      if (newSnake.length > GRID_SIZE * GRID_SIZE / 2) {
+        setLevel(level + 1);
+        resetGame();
+      }
+
       newSnake.pop();
-    }
 
-    setSnake(newSnake);
+      setSnake(newSnake);
+    }
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
-    // Update the direction based on the pressed arrow key
     switch (event.key) {
       case 'ArrowUp':
         setDirection('UP');
@@ -62,38 +93,101 @@ const Game: React.FC = () => {
     }
   };
 
+  const resetGame = () => {
+    setSnake([{ x: 0, y: 0 }]);
+    setDirection('RIGHT');
+    setObstacles(generateObstacles());
+  };
+
+  const generateObstacles = () => {
+    const currentObstacleType = obstacleTypes.find((type) => type.level === selectedLevel);
+
+    if (!currentObstacleType) {
+      return [];
+    }
+
+    const newObstacles: Obstacle[] = [];
+
+    for (let i = 0; i < currentObstacleType.density; i++) {
+      newObstacles.push({
+        x: Math.floor(Math.random() * GRID_SIZE),
+        y: Math.floor(Math.random() * GRID_SIZE),
+      });
+    }
+
+    return newObstacles;
+  };
+
   useEffect(() => {
-    // Set up a timer to move the snake every 0.3 seconds
     const intervalId = setInterval(() => {
       moveSnake();
     }, 300);
 
-    // Add event listener for arrow keys
     window.addEventListener('keydown', handleKeyDown);
 
-    // Clean up the timer and event listener when the component unmounts
     return () => {
       clearInterval(intervalId);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [snake, direction]);
+  }, [snake, direction, isPaused]);
+
+  useEffect(() => {
+    setObstacles(generateObstacles());
+  }, [selectedLevel]);
 
   return (
-    <div className="max-w-lg mx-auto p-4">
-      <h3 className="text-2xl font-semibold mb-4">Game View</h3>
-      <div className="grid">
-        {Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => {
-          const x = index % GRID_SIZE;
-          const y = Math.floor(index / GRID_SIZE);
-          const isSnakeCell = snake.some((segment) => segment.x === x && segment.y === y);
+    <div className="game-container">
+      <div className="sidebar">
+        <h4>Select Level:</h4>
+        <select
+          value={selectedLevel}
+          onChange={(e) => setSelectedLevel(Number(e.target.value))}
+        >
+          <option value={1}>Level 1</option>
+          <option value={2}>Level 2</option>
+          <option value={3}>Level 3</option>
+          {/* Add more levels as needed */}
+        </select>
+      </div>
+      <div className="max-w-lg mx-auto p-4">
+        <h3 className="text-2xl font-semibold mb-4">Game View - Level {level}</h3>
+        <div className="grid">
+          {Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => {
+            const x = index % GRID_SIZE;
+            const y = Math.floor(index / GRID_SIZE);
+            const isSnakeCell = snake.some((segment) => segment.x === x && segment.y === y);
+            const isObstacleCell = obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y);
 
-          return (
-            <div
-              key={index}
-              className={`cell ${isSnakeCell ? 'snake-cell' : 'empty-cell'}`}
-            />
-          );
-        })}
+            return (
+              <div
+                key={index}
+                className={`cell w-${CELL_SIZE} h-${CELL_SIZE} ${
+                  isSnakeCell
+                    ? 'snake-cell'
+                    : isObstacleCell
+                    ? obstacleTypes.find((type) => type.level === selectedLevel)?.density === 0
+                      ? obstacleColor
+                      : `obstacle-type-${selectedLevel}`
+                    : 'empty-cell'
+                }`}
+              />
+            );
+          })}
+        </div>
+        <div className="mt-4">
+          <button
+            onClick={resetGame}
+            className="mr-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          >
+            Reset
+          </button>
+          <button
+            onClick={() => setIsPaused(!isPaused)}
+            className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded"
+          >
+            {isPaused ? 'Resume' : 'Pause'}
+          </button>
+        </div>
       </div>
     </div>
   );
