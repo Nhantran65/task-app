@@ -1,113 +1,12 @@
 {
-  "tasks": [
-    {
-      "id": 2,
-      "name": "Task 2",
-      "tags": [
-        "tag3"
-      ]
-    },
-    {
-      "name": "Nhan Tran",
-      "tags": [
-        "dđ"
-      ],
-      "active": true,
-      "id": 3
-    },
-    {
-      "name": "fdfd",
-      "tags": [],
-      "active": true,
-      "id": 4
-    },
-    {
-      "name": "Ni",
-      "tags": [
-        "cooking"
-      ],
-      "active": true,
-      "id": 5
-    },
-    {
-      "name": "fđfd",
-      "tags": [
-        "cdfdfd"
-      ],
-      "active": true,
-      "id": 6
-    },
-    {
-      "name": "fdfd",
-      "tags": [
-        "fđf"
-      ],
-      "active": true,
-      "id": 7
-    },
-    {
-      "name": "fđf",
-      "tags": [
-        "fđf"
-      ],
-      "active": true,
-      "id": 8
-    },
-    {
-      "name": "fdfd",
-      "tags": [
-        "fđf"
-      ],
-      "active": true,
-      "id": 9
-    },
-    {
-      "name": "fff",
-      "tags": [
-        "cooking"
-      ],
-      "active": true,
-      "id": 10
-    },
-    {
-      "name": "ffff",
-      "tags": [
-        "sweeee"
-      ],
-      "active": true,
-      "id": 11
-    },
-    {
-      "name": "dđ",
-      "tags": [
-        "nhâ"
-      ],
-      "active": true,
-      "id": 12
-    },
-    {
-      "name": "dd",
-      "tags": [
-        "tag3"
-      ],
-      "active": true,
-      "id": 13
-    },
-    {
-      "name": "nhan",
-      "tags": [
-        "cooking"
-      ],
-      "active": true,
-      "id": 14
-    },
-    {
-      "name": "fdf",
-      "tags": [
-        "fd"
-      ],
-      "active": true,
-      "id": 15
-    }
+  "obstacles": [
+    { "x": 3, "y": 5 },
+    { "x": 7, "y": 10 },
+    { "x": 15, "y": 8 }
+  ],
+  "apples": [
+    { "x": 1, "y": 1 },
+    { "x": 10, "y": 5 },
+    { "x": 18, "y": 12 }
   ]
 }

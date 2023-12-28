@@ -1,0 +1,21 @@
+/* Game.css */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(20, 20px); /* 20 columns, each 20px wide */
+    grid-gap: 1px; /* Gap between grid cells */
+  }
+  
+  .cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+  }
+  
+  .snake-cell {
+    background-color: rgb(25, 90, 25); /* Green color for snake cells */
+  }
+  
+  .empty-cell {
+    background-color: #ddd; /* Gray color for empty cells */
+  }
+  
