@@ -87,6 +87,7 @@
         }
       };
 
+      // Function navigate snake's direction
       const handleKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {
           case 'ArrowUp':
@@ -113,6 +114,7 @@
         generateApple();
       };
 
+      // Function generateObstacles
       const generateObstacles = () => {
         const currentObstacleType = obstacleTypes.find((type) => type.level === selectedLevel);
 
@@ -120,18 +122,32 @@
           return [];
         }
 
+        const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
+          (index) => {
+            const x = index % GRID_SIZE;
+            const y = Math.floor(index / GRID_SIZE);
+            return (
+              !snake.some((segment) => segment.x === x && segment.y === y) &&
+              !apples.some((apple) => apple.x === x && apple.y === y)
+            );
+          }
+        );
+
         const newObstacles: Obstacle[] = [];
 
-        for (let i = 0; i < currentObstacleType.density; i++) {
-          newObstacles.push({
-            x: Math.floor(Math.random() * GRID_SIZE),
-            y: Math.floor(Math.random() * GRID_SIZE),
-          });
+        for (let i = 0; i < currentObstacleType.density && freeCells.length > 0; i++) {
+          const randomIndex = Math.floor(Math.random() * freeCells.length);
+          const randomCell = freeCells[randomIndex];
+          const x = randomCell % GRID_SIZE;
+          const y = Math.floor(randomCell / GRID_SIZE);
+          newObstacles.push({ x, y });
+          freeCells.splice(randomIndex, 1);
         }
 
         return newObstacles;
       };
 
+      // Function generateApple
       const generateApple = () => {
         const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
           (index) => {
@@ -144,21 +160,23 @@
             );
           }
         );
-      
-        if (freeCells.length > 0) {
-          const randomIndices = [];
-          for (let i = 0; i < 3; i++) {
+
+        if (freeCells.length >= 3) {
+          const randomIndices: number[] = [];
+          while (randomIndices.length < 3) {
             const randomIndex = Math.floor(Math.random() * freeCells.length);
-            randomIndices.push(randomIndex);
+            if (!randomIndices.includes(randomIndex)) {
+              randomIndices.push(randomIndex);
+            }
           }
-      
+
           const newApples = randomIndices.map((randomIndex) => {
             const randomCell = freeCells[randomIndex];
             const x = randomCell % GRID_SIZE;
             const y = Math.floor(randomCell / GRID_SIZE);
             return { x, y, color: 'red' };
           });
-      
+
           setApples(newApples);
         }
       };
