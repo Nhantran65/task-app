@@ -57,5 +57,9 @@
   .sidebar a:hover {
     color: #ecf0f1; /* Hover text color */
   }
+  .cell.red-apple {
+    background-color: red;
+    border-radius: 50%; /* Làm tròn để tạo hình dáng của quả táo */
+  }
   
   /* Adjust other styles as needed */
