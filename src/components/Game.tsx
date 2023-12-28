@@ -41,7 +41,7 @@
         if (!isPaused) {
           const newSnake = [...snake];
           const head = { ...newSnake[0] };
-
+      
           switch (direction) {
             case 'UP':
               head.y -= 1;
@@ -58,36 +58,35 @@
             default:
               break;
           }
-
+      
           newSnake.unshift(head);
-
+      
           const collisionWithObstacle = obstacles.some(
             (obstacle) => obstacle.x === head.x && obstacle.y === head.y
           );
-
+      
           if (collisionWithObstacle) {
             resetGame();
             return;
           }
-
+      
           const ateAppleIndex = apples.findIndex((apple) => apple.x === head.x && apple.y === head.y);
-
+      
           if (ateAppleIndex !== -1) {
-            // Remove the eaten apple
-            const updatedApples = [...apples];
-            updatedApples.splice(ateAppleIndex, 1);
-            setApples(updatedApples);
-            // Add a new apple at a random position
-            generateApple();
+            setApples((prevApples) => {
+              const updatedApples = prevApples.map((a, index) => (index === ateAppleIndex ? null : a)).filter(Boolean) as Apple[];
+              generateApple();
+              return updatedApples;
+            });
           } else {
             newSnake.pop();
           }
-
+      
           setSnake(newSnake);
         }
       };
-
-      // Function navigate snake's direction
+      
+      // Function navigate snake's 
       const handleKeyDown = (event: KeyboardEvent) => {
         switch (event.key) {
           case 'ArrowUp':
@@ -111,7 +110,13 @@
         setSnake([{ x: 0, y: 0 }]);
         setDirection('RIGHT');
         setObstacles(generateObstacles());
-        generateApple();
+        setApples((prevApples) =>
+          prevApples.map((apple) => ({
+            ...apple,
+            x: Math.floor(Math.random() * GRID_SIZE),
+            y: Math.floor(Math.random() * GRID_SIZE),
+          }))
+        );
       };
 
       // Function generateObstacles
@@ -149,37 +154,33 @@
 
       // Function generateApple
       const generateApple = () => {
-        const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
-          (index) => {
-            const x = index % GRID_SIZE;
-            const y = Math.floor(index / GRID_SIZE);
-            return (
-              !snake.some((segment) => segment.x === x && segment.y === y) &&
-              !obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y) &&
-              !apples.some((apple) => apple.x === x && apple.y === y)
-            );
-          }
-        );
-
-        if (freeCells.length >= 3) {
-          const randomIndices: number[] = [];
-          while (randomIndices.length < 3) {
-            const randomIndex = Math.floor(Math.random() * freeCells.length);
-            if (!randomIndices.includes(randomIndex)) {
-              randomIndices.push(randomIndex);
+        setApples((prevApples) => {
+          const remainingApples = prevApples.filter((apple) => apple !== null) as Apple[];
+          const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
+            (index) => {
+              const x = index % GRID_SIZE;
+              const y = Math.floor(index / GRID_SIZE);
+              return (
+                !snake.some((segment) => segment.x === x && segment.y === y) &&
+                !obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y) &&
+                !remainingApples.some((apple) => apple.x === x && apple.y === y)
+              );
             }
-          }
+          );
 
-          const newApples = randomIndices.map((randomIndex) => {
+          if (freeCells.length > 0 && remainingApples.length < 3) {
+            const randomIndex = Math.floor(Math.random() * freeCells.length);
             const randomCell = freeCells[randomIndex];
             const x = randomCell % GRID_SIZE;
             const y = Math.floor(randomCell / GRID_SIZE);
-            return { x, y, color: 'red' };
-          });
+            const newApple: Apple = { x, y, color: 'red' };
+            return [...remainingApples, newApple];
+          }
 
-          setApples(newApples);
-        }
+          return remainingApples;
+        });
       };
+
 
       useEffect(() => {
         const intervalId = setInterval(() => {
