@@ -1,5 +1,5 @@
     import React, { useState, useEffect } from 'react';
-    import './Game.css';
+    import '../style/Game.css';
 
     const GRID_SIZE = 20;
 
@@ -110,13 +110,13 @@
         setSnake([{ x: 0, y: 0 }]);
         setDirection('RIGHT');
         setObstacles(generateObstacles());
-        setApples((prevApples) =>
-          prevApples.map((apple) => ({
-            ...apple,
-            x: Math.floor(Math.random() * GRID_SIZE),
-            y: Math.floor(Math.random() * GRID_SIZE),
-          }))
-        );
+        
+        // Thêm 3 quả táo vào mảng apples
+        setApples([
+          { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE), color: 'red' },
+          { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE), color: 'red' },
+          { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE), color: 'red' },
+        ]);
       };
 
       // Function generateObstacles
@@ -153,33 +153,37 @@
       };
 
       // Function generateApple
-      const generateApple = () => {
-        setApples((prevApples) => {
-          const remainingApples = prevApples.filter((apple) => apple !== null) as Apple[];
-          const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
-            (index) => {
-              const x = index % GRID_SIZE;
-              const y = Math.floor(index / GRID_SIZE);
-              return (
-                !snake.some((segment) => segment.x === x && segment.y === y) &&
-                !obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y) &&
-                !remainingApples.some((apple) => apple.x === x && apple.y === y)
-              );
-            }
-          );
+const generateApple = () => {
+  setApples((prevApples) => {
+    const remainingApples = prevApples.filter((apple) => apple !== null) as Apple[];
+    const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
+      (index) => {
+        const x = index % GRID_SIZE;
+        const y = Math.floor(index / GRID_SIZE);
+        return (
+          !snake.some((segment) => segment.x === x && segment.y === y) &&
+          !obstacles.some((obstacle) => obstacle.x === x && obstacle.y === y) &&
+          !remainingApples.some((apple) => apple.x === x && apple.y === y)
+        );
+      }
+    );
 
-          if (freeCells.length > 0 && remainingApples.length < 3) {
-            const randomIndex = Math.floor(Math.random() * freeCells.length);
-            const randomCell = freeCells[randomIndex];
-            const x = randomCell % GRID_SIZE;
-            const y = Math.floor(randomCell / GRID_SIZE);
-            const newApple: Apple = { x, y, color: 'red' };
-            return [...remainingApples, newApple];
-          }
+    if (freeCells.length > 0 && remainingApples.length < 3) {
+      const newApples: Apple[] = [...remainingApples];
+      while (newApples.length < 3) {
+        const randomIndex = Math.floor(Math.random() * freeCells.length);
+        const randomCell = freeCells[randomIndex];
+        const x = randomCell % GRID_SIZE;
+        const y = Math.floor(randomCell / GRID_SIZE);
+        newApples.push({ x, y, color: 'red' });
+        freeCells.splice(randomIndex, 1);
+      }
+      return newApples;
+    }
 
-          return remainingApples;
-        });
-      };
+    return remainingApples;
+  });
+};
 
 
       useEffect(() => {
