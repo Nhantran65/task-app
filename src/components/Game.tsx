@@ -28,6 +28,8 @@ const Game: React.FC = () => {
   const [isPaused, setIsPaused] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [apples, setApples] = useState<Apple[]>([]);
+  const [score, setScore] = useState(0);
+  const [targetLength, setTargetLength] = useState(5);
 
   const CELL_SIZE = 20;
   const obstacleColor = 'red';
@@ -82,11 +84,23 @@ const Game: React.FC = () => {
       );
 
       if (ateAppleIndex !== -1) {
+        const eatenApple = apples[ateAppleIndex];
+
         setApples((prevApples) => {
           const updatedApples = prevApples
             .map((a, index) => (index === ateAppleIndex ? null : a))
             .filter(Boolean) as Apple[];
+
+          if (eatenApple.isSpecial) {
+            setTargetLength(Math.floor(1.5 * targetLength / 5) * 5);
+            setScore((prevScore) => prevScore + 25);
+          } else {
+            setTargetLength(targetLength + 5);
+            setScore((prevScore) => prevScore + 5);
+          }
+
           generateApple();
+
           return updatedApples;
         });
       } else {
@@ -125,15 +139,17 @@ const Game: React.FC = () => {
       { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE), color: 'red', isSpecial: false },
       { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE), color: 'red', isSpecial: false },
     ]);
+    setScore(0);
+    setTargetLength(5);
   };
 
   const generateObstacles = () => {
     const currentObstacleType = obstacleTypes.find((type) => type.level === selectedLevel);
-  
+
     if (!currentObstacleType) {
       return [];
     }
-  
+
     const freeCells = Array.from({ length: GRID_SIZE * GRID_SIZE }, (_, index) => index).filter(
       (index) => {
         const x = index % GRID_SIZE;
@@ -144,9 +160,9 @@ const Game: React.FC = () => {
         );
       }
     );
-  
+
     const newObstacles: Obstacle[] = [];
-  
+
     for (let i = 0; i < currentObstacleType.density && freeCells.length > 0; i++) {
       const randomIndex = Math.floor(Math.random() * freeCells.length);
       const randomCell = freeCells[randomIndex];
@@ -155,9 +171,10 @@ const Game: React.FC = () => {
       newObstacles.push({ x, y });
       freeCells.splice(randomIndex, 1);
     }
-  
+
     return newObstacles;
   };
+
   const generateApple = () => {
     setApples((prevApples) => {
       const remainingApples = prevApples.filter((apple) => apple !== null) as Apple[];
@@ -172,16 +189,16 @@ const Game: React.FC = () => {
           );
         }
       );
-  
+
       const newApples: Apple[] = [...remainingApples];
-  
+
       while (newApples.length < 3) {
         const randomIndex = Math.floor(Math.random() * freeCells.length);
         const randomCell = freeCells[randomIndex];
         const x = randomCell % GRID_SIZE;
         const y = Math.floor(randomCell / GRID_SIZE);
-        const isSpecial = Math.random() < 0.1; // 10% opportunity become a special apple
-  
+        const isSpecial = Math.random() < 0.8; // 10% opportunity to become a special apple
+
         if (isSpecial || selectedLevel === 1) {
           newApples.push({ x, y, color: isSpecial ? 'gold' : 'red', isSpecial });
         } else {
@@ -193,11 +210,10 @@ const Game: React.FC = () => {
         }
         freeCells.splice(randomIndex, 1);
       }
-  
+
       return newApples;
     });
   };
-  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -232,6 +248,8 @@ const Game: React.FC = () => {
           <option value={2}>Level 2</option>
           <option value={3}>Level 3</option>
         </select>
+        <p>Score: {score}</p>
+        <p>Target Length: {targetLength}</p>
       </div>
       <div className="max-w-lg mx-auto p-4">
         <h3 className="text-2xl font-semibold mb-4">Game View - Level {level}</h3>
@@ -282,5 +300,3 @@ const Game: React.FC = () => {
 };
 
 export default Game;
-
-//Special Apple
